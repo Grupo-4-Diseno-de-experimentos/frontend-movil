@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trabajoexp/model/meal_plan_model.dart';
 import '../../services/meal_plan_service.dart';
+import 'package:trabajoexp/screens/create_meal_plan_screen.dart';
 
 class MealPlanScreen extends StatefulWidget {
   const MealPlanScreen({super.key});
@@ -117,17 +118,17 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Planes de Comida"), bottom: TabBar(
-        controller: _tabController,
-        tabs: const [
-          Tab(text: "Mis Planes"),
-          Tab(text: "Todos los Planes"),
-        ],
-        onTap: (index) {
-          // Aquí podrías cambiar el endpoint si "Mis Planes" es distinto
-          _loadMealPlans();
-        },
-      )),
+      appBar: AppBar(
+        title: const Text("Planes de Comida"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: "Mis Planes"),
+            Tab(text: "Todos los Planes"),
+          ],
+          onTap: (index) => _loadMealPlans(),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -159,6 +160,16 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const CreateMealPlanScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
+        tooltip: 'Crear nuevo plan',
       ),
     );
   }

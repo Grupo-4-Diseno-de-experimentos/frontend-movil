@@ -56,4 +56,6 @@ class MealPlan {
       'nutricionist_id': nutricionistId,
     };
   }
+
+
 }

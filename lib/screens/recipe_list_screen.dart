@@ -17,6 +17,14 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     super.initState();
     recipesFuture = RecipeService().getRecipes();
   }
+  Future<List<Recipe>> loadRecipesWithIngredients() async {
+    final recipes = await RecipeService().getRecipes();
+    for (var recipe in recipes) {
+      final ingredients = await RecipeService().getIngredientsByIds(recipe.ingredientsIds);
+      recipe.ingredients = ingredients;
+    }
+    return recipes;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +49,8 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                     Text("Carbs: ${recipe.macros.carbs}g | Proteínas: ${recipe.macros.protein}g | Grasas: ${recipe.macros.fats}g"),
                     SizedBox(height: 8),
                     Text("Ingredientes:", style: TextStyle(fontWeight: FontWeight.bold)),
-                    ...recipe.ingredients.map((ing) => ListTile(
-                      title: Text(ing.name),
-                      subtitle: Text("${ing.quantity}g - ${ing.calories} cal"),
+                    ...recipe.ingredientsIds.map((id) => ListTile(
+                      title: Text("ID ingrediente: $id"),
                     )),
                   ],
                 ),

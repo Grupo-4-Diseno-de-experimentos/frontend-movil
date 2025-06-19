@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:trabajoexp/model/meal_plan_model.dart';
 import 'package:trabajoexp/enviroments/env.dart';
+import 'package:trabajoexp/utils/create_meal_plan_request.dart';
 
 class MealPlanService {
   final String baseUrl = Env.baseUrl;
@@ -36,14 +37,14 @@ class MealPlanService {
     }
   }
 
-  Future<void> createMealPlan(MealPlan plan) async {
+  Future<void> createFullMealPlan(CreateMealPlanRequest plan) async {
     final response = await http.post(
-      Uri.parse('http://192.168.1.51:8080/mealPlaner'),
+      Uri.parse('$baseUrl/mealPlanRecipes'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(plan.toJson()),
     );
-    if (response.statusCode != 201) {
-      throw Exception('Error al crear el plan');
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception('Error al crear el plan de comida');
     }
   }
   Future<List<MealPlan>> getCustomerMealPlans(String userId) async {

@@ -8,21 +8,23 @@ class RecipeService{
 
   Future<List<Recipe>> getRecipes() async {
     final response = await http.get(Uri.parse('$baseUrl/recipe'));
+
     if (response.statusCode == 200) {
-      final List data = json.decode(response.body);
-      List<Recipe> recipes = [];
-
-      for (var recipeData in data) {
-        final ingredientsResponse = await http.get(Uri.parse('$baseUrl/ingredients/recipe/${recipeData["id"]}'));
-        final ingredientsData = json.decode(ingredientsResponse.body) as List;
-        recipeData['ingredients'] = ingredientsData;
-
-        recipes.add(Recipe.fromJson(recipeData));
-      }
-
-      return recipes;
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((item) => Recipe.fromJson(item)).toList();
     } else {
-      throw Exception('Failed to load recipes');
+      throw Exception('Error al cargar recetas');
     }
+  }
+  Future<List<Ingredient>> getIngredientsByIds(List<int> ids) async {
+    final response = await http.get(Uri.parse('$baseUrl/ingredients'));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList
+          .where((i) => ids.contains(i['id']))
+          .map((i) => Ingredient.fromJson(i))
+          .toList();
+    }
+    return [];
   }
 }

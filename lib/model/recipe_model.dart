@@ -49,9 +49,9 @@ class Macros {
 
   factory Macros.fromJson(Map<String, dynamic> json) {
     return Macros(
-      carbs: (json['carbs'] ?? 0).toDouble(),
-      protein: (json['protein'] ?? 0).toDouble(),
-      fats: (json['fats'] ?? 0).toDouble(),
+      carbs: json['carbs'],
+      protein: json['protein'],
+      fats: json['fats'],
     );
   }
 }
@@ -64,7 +64,7 @@ class Recipe {
   final int calories;
   final int nutricionistId;
   final Macros macros;
-  final List<Ingredient> ingredients;
+  final List<int> ingredientsIds;
 
   Recipe({
     required this.id,
@@ -74,7 +74,7 @@ class Recipe {
     required this.calories,
     required this.nutricionistId,
     required this.macros,
-    required this.ingredients,
+    required this.ingredientsIds,
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -84,11 +84,11 @@ class Recipe {
       description: json['description'],
       instructions: json['instructions'],
       calories: json['calories'],
-      nutricionistId: json['nutricionist_id'],
+      nutricionistId: json['nutricionist_id'] ?? 0,
       macros: Macros.fromJson(json['macros']),
-      ingredients: (json['ingredients'] as List<dynamic>)
-          .map((e) => Ingredient.fromJson(e))
-          .toList(),
+      ingredientsIds: List<int>.from(json['ingredientIds']),
     );
   }
+
+  set ingredients(List<Ingredient> ingredients) {}
 }
