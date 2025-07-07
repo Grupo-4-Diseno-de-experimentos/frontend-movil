@@ -1,3 +1,25 @@
+import 'package:trabajoexp/model/recipe_model.dart';
+
+class MealPlanRecipe {
+  final String day;
+  final String mealTime;
+  final Recipe recipe;
+
+  MealPlanRecipe({
+    required this.day,
+    required this.mealTime,
+    required this.recipe,
+  });
+
+  factory MealPlanRecipe.fromJson(Map<String, dynamic> json) {
+    return MealPlanRecipe(
+      day: json['day'],
+      mealTime: json['mealTime'],
+      recipe: Recipe.fromJson(json['recipe']), // ✅ Usa la receta completa
+    );
+  }
+}
+
 class MealPlan {
   final int? id;
   final String name;

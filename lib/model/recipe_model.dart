@@ -66,6 +66,9 @@ class Recipe {
   final Macros macros;
   final List<int> ingredientsIds;
 
+  // ✅ Nueva propiedad
+  List<Ingredient> ingredients = [];
+
   Recipe({
     required this.id,
     required this.title,
@@ -89,6 +92,4 @@ class Recipe {
       ingredientsIds: List<int>.from(json['ingredientIds']),
     );
   }
-
-  set ingredients(List<Ingredient> ingredients) {}
 }

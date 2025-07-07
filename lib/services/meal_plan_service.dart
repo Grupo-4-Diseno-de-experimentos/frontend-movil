@@ -29,7 +29,8 @@ class MealPlanService {
   }
 
   Future<MealPlan> getMealPlanById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/mealPlaner/$id'));
+    print('Respuesta mealplan: ${response.body}');
     if (response.statusCode == 200) {
       return MealPlan.fromJson(jsonDecode(response.body));
     } else {
@@ -47,6 +48,22 @@ class MealPlanService {
       throw Exception('Error al crear el plan de comida');
     }
   }
+
+  Future<List<MealPlanRecipe>> getMealPlanRecipesByPlanId(int planId) async {
+    final response = await http.get(Uri.parse('$baseUrl/mealPlanRecipes/$planId'));
+    print('Respuesta recipes: ${response.body}');
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      if (decoded is List) {
+        return decoded.map((e) => MealPlanRecipe.fromJson(e)).toList();
+      } else {
+        return [];
+      }
+    } else {
+      throw Exception('Error al cargar recetas del plan');
+    }
+  }
+
   Future<List<MealPlan>> getCustomerMealPlans(String userId) async {
     final response = await http.get(Uri.parse('$baseUrl/customer_meal_plan'));
     if (response.statusCode == 200) {

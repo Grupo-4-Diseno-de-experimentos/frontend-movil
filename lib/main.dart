@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trabajoexp/screens/dashboard_screen.dart';
 import 'package:trabajoexp/screens/meal_plan_list_screen.dart';
 import 'package:trabajoexp/screens/recipe_list_screen.dart';
 import 'package:trabajoexp/screens/create_meal_plan_screen.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/mealplans': (context) => const MealPlanScreen(),
+        '/dashboard':(context) => const DashboardScreen(),
       },
     );
   }

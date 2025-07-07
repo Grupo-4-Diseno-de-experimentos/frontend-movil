@@ -14,10 +14,14 @@ class AuthService {
       body: jsonEncode({'email': email, 'password': password}),
     );
 
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
+
       if (data['user'] != null) {
-        return User.fromJson(data['user']); // ✅ aquí está el fix
+        return User.fromJson(data['user']);
       } else {
         throw Exception('Usuario no encontrado en la respuesta');
       }
