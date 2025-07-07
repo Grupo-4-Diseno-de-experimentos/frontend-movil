@@ -66,8 +66,7 @@ class Recipe {
   final Macros macros;
   final List<int> ingredientsIds;
 
-  // ✅ Nueva propiedad
-  List<Ingredient> ingredients = [];
+  List<Ingredient> ingredients;
 
   Recipe({
     required this.id,
@@ -78,6 +77,7 @@ class Recipe {
     required this.nutricionistId,
     required this.macros,
     required this.ingredientsIds,
+    this.ingredients = const [],
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
@@ -89,7 +89,15 @@ class Recipe {
       calories: json['calories'],
       nutricionistId: json['nutricionist_id'] ?? 0,
       macros: Macros.fromJson(json['macros']),
-      ingredientsIds: List<int>.from(json['ingredientIds']),
+      ingredientsIds: (json['ingredientIds'] != null)
+          ? List<int>.from(json['ingredientIds'])
+          : [],
+
+      /// ✅ Parsear `ingredients` si viene, si no poner lista vacía
+      ingredients: (json['ingredients'] as List<dynamic>?)
+          ?.map((e) => Ingredient.fromJson(e))
+          .toList() ??
+          [],
     );
   }
 }

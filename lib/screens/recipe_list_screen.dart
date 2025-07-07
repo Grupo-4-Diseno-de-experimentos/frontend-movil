@@ -4,6 +4,7 @@ import 'package:trabajoexp/services/recipe_service.dart';
 import 'package:trabajoexp/screens/create_recipe_screen.dart';
 import 'package:trabajoexp/widgets/app_side_bar_widget.dart';
 import 'package:trabajoexp/services/user_service.dart';
+import 'package:trabajoexp/screens/recipe_detail_screen.dart'; // ✅ Importa pantalla de detalle
 
 class RecipeListScreen extends StatefulWidget {
   final bool isNutricionist;
@@ -52,7 +53,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     }
 
     try {
-      await RecipeService().addFavorite(userId, recipe.id!);
+      await RecipeService().addFavorite(userId, recipe.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${recipe.title} añadido a favoritos')),
       );
@@ -61,6 +62,23 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
         const SnackBar(content: Text('Error al añadir a favoritos')),
       );
     }
+  }
+
+  void goToRecipeDetail(Recipe recipe) async {
+    final userId = UserService().getUserId() ?? 0;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RecipeDetailScreen(
+          recipe: recipe,
+          userId: userId,
+        ),
+      ),
+    );
+    // Si quieres refrescar la lista después de volver
+    setState(() {
+      recipesFuture = loadRecipesWithIngredients();
+    });
   }
 
   @override
@@ -109,32 +127,35 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         elevation: 4,
                         margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ListTile(
-                              title: Text(recipe.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              subtitle: Text(recipe.description, maxLines: 2, overflow: TextOverflow.ellipsis),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                              child: Text(recipe.instructions, maxLines: 3, overflow: TextOverflow.ellipsis),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
-                              child: Text('Calorías: ${recipe.calories} Kcal', style: const TextStyle(fontWeight: FontWeight.w500)),
-                            ),
-                            ButtonBar(
-                              alignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: () => addFavorite(recipe),
-                                  icon: const Icon(Icons.favorite, color: Colors.red),
-                                  label: const Text('Añadir a Favoritos'),
-                                ),
-                              ],
-                            ),
-                          ],
+                        child: InkWell(
+                          onTap: () => goToRecipeDetail(recipe), // ✅ Tap para ver detalle
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                title: Text(recipe.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                subtitle: Text(recipe.description, maxLines: 2, overflow: TextOverflow.ellipsis),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                                child: Text(recipe.instructions, maxLines: 3, overflow: TextOverflow.ellipsis),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+                                child: Text('Calorías: ${recipe.calories} Kcal', style: const TextStyle(fontWeight: FontWeight.w500)),
+                              ),
+                              ButtonBar(
+                                alignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton.icon(
+                                    onPressed: () => addFavorite(recipe),
+                                    icon: const Icon(Icons.favorite, color: Colors.red),
+                                    label: const Text('Añadir a Favoritos'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

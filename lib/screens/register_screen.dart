@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:trabajoexp/model/user_model.dart';
 import 'package:trabajoexp/services/auth_service.dart';
+import 'package:trabajoexp/services/user_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -87,17 +88,25 @@ Fecha de actualización: 13 de Mayo de 2025.
       );
 
       try {
-        await _authService.register(user);
+        final createdUser = await _authService.register(user);
+
+        // ✅ Guardar el usuario en UserService y en SharedPreferences
+        await UserService().setUser(createdUser.toJson());
+
         if (_role == 'NUTRICIONIST') {
-          Navigator.pushReplacementNamed(context, '/profile');
+          Navigator.pushReplacementNamed(context, '/dashboard');
         } else {
-          Navigator.pushReplacementNamed(context, '/mealplans');
+          Navigator.pushReplacementNamed(context, '/startObjectives');
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al registrar usuario')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al registrar usuario')),
+        );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Debes aceptar los Términos y la Política de Privacidad')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes aceptar los Términos y la Política de Privacidad')),
+      );
     }
   }
 

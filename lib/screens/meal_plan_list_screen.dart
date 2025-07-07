@@ -14,11 +14,13 @@ class MealPlanScreen extends StatefulWidget {
 
 class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProviderStateMixin {
   final MealPlanService _service = MealPlanService();
-  List<MealPlan> _mealPlans = [];
+  List<MealPlan> _allMealPlans = [];
+  List<MealPlan> _filteredMealPlans = [];
   String? _selectedCategory;
   String? _selectedGoal;
   late TabController _tabController;
   bool _isLoading = false;
+  Set<String> _categories = {};
 
   @override
   void initState() {
@@ -44,12 +46,18 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
       if (_tabController.index == 0) {
         plans = await _service.getAllMealPlans();
       } else {
-        plans = await _service.getAllMealPlans(category: _selectedCategory, goal: _selectedGoal);
+        plans = await _service.getAllMealPlans();
       }
 
+      _categories = plans.map((plan) => plan.category).toSet();
+
       setState(() {
-        _mealPlans = plans;
+        _allMealPlans = plans;
+        _selectedCategory = null;
+        _selectedGoal = null;
       });
+
+      _applyFilters();
     } catch (e) {
       print("Error al cargar planes: $e");
     } finally {
@@ -57,6 +65,16 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
         _isLoading = false;
       });
     }
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredMealPlans = _allMealPlans.where((plan) {
+        final matchesCategory = _selectedCategory == null || plan.category == _selectedCategory;
+        final matchesGoal = _selectedGoal == null || plan.goal == _selectedGoal;
+        return matchesCategory && matchesGoal;
+      }).toList();
+    });
   }
 
   Widget _buildDropdowns() {
@@ -76,14 +94,14 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
                 hint: const Text("Categoría"),
                 isExpanded: true,
                 underline: const SizedBox(),
-                items: ['Hiperproteico', 'Hipocalórico', 'Vegetariano']
+                items: _categories
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedCategory = value;
                   });
-                  _loadMealPlans();
+                  _applyFilters();
                 },
               ),
             ),
@@ -111,7 +129,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
                   setState(() {
                     _selectedGoal = value;
                   });
-                  _loadMealPlans();
+                  _applyFilters();
                 },
               ),
             ),
@@ -181,7 +199,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
               Expanded(
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : _mealPlans.isEmpty
+                    : _filteredMealPlans.isEmpty
                     ? Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -201,8 +219,8 @@ class _MealPlanScreenState extends State<MealPlanScreen> with SingleTickerProvid
                   ),
                 )
                     : ListView.builder(
-                  itemCount: _mealPlans.length,
-                  itemBuilder: (_, index) => _buildMealPlanCard(_mealPlans[index]),
+                  itemCount: _filteredMealPlans.length,
+                  itemBuilder: (_, index) => _buildMealPlanCard(_filteredMealPlans[index]),
                 ),
               ),
             ],

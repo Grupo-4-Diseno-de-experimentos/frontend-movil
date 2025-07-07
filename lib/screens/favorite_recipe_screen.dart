@@ -81,7 +81,15 @@ class _FavoriteRecipeScreenState extends State<FavoriteRecipeScreen> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // Aquí podrías navegar al detalle
+                              Navigator.pushNamed(
+                                context,
+                                '/recipe/detail',
+                                arguments: {
+                                  'recipe': recipe,
+                                  'userId': widget.userId,
+                                  'isNutricionist': true,
+                                },
+                              );
                             },
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                             child: const Text('Ver Detalle'),

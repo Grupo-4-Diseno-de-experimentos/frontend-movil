@@ -3,7 +3,9 @@ import 'package:trabajoexp/model/recipe_model.dart';
 import 'package:trabajoexp/services/recipe_service.dart';
 
 class CreateRecipeScreen extends StatefulWidget {
-  const CreateRecipeScreen({super.key});
+  final Recipe? recipe; // ✅ Ahora acepta una receta opcional
+
+  const CreateRecipeScreen({super.key, this.recipe});
 
   @override
   State<CreateRecipeScreen> createState() => _CreateRecipeScreenState();
@@ -31,6 +33,18 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   void initState() {
     super.initState();
     loadIngredients();
+
+    if (widget.recipe != null) {
+      final r = widget.recipe!;
+      titleController.text = r.title;
+      descriptionController.text = r.description;
+      instructionsController.text = r.instructions;
+      caloriesController.text = r.calories.toString();
+      carbsController.text = r.macros.carbs.toString();
+      proteinController.text = r.macros.protein.toString();
+      fatsController.text = r.macros.fats.toString();
+      selectedIngredients = List<Ingredient>.from(r.ingredients);
+    }
   }
 
   Future<void> loadIngredients() async {
@@ -44,8 +58,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     setState(() {
       searchQuery = query;
       filteredIngredients = allIngredients
-          .where((ing) =>
-          ing.name.toLowerCase().contains(query.toLowerCase()))
+          .where((ing) => ing.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -70,18 +83,19 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final newRecipe = Recipe(
-      id: 0,
+      id: widget.recipe?.id ?? 0, // ✅ Si viene de edición, mantenemos id
       title: titleController.text,
       description: descriptionController.text,
       instructions: instructionsController.text,
       calories: int.parse(caloriesController.text),
-      nutricionistId: 0, // pon tu ID real si tienes login
+      nutricionistId: 0, // pon tu ID real si lo usas
       macros: Macros(
         carbs: double.parse(carbsController.text),
         protein: double.parse(proteinController.text),
         fats: double.parse(fatsController.text),
       ),
       ingredientsIds: selectedIngredients.map((e) => e.id).toList(),
+      ingredients: selectedIngredients,
     );
 
     try {
@@ -99,8 +113,10 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEdit = widget.recipe != null;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear Nueva Receta')),
+      appBar: AppBar(title: Text(isEdit ? 'Editar Receta' : 'Crear Nueva Receta')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -108,7 +124,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Información Básica
               sectionHeader(Icons.info_outline, 'Información Básica'),
               const SizedBox(height: 12),
               textField(titleController, 'Título*', 'Ej: Ensalada César', validator: (v) => v!.isEmpty ? 'Requerido' : null),
@@ -202,8 +217,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
                     onPressed: submitRecipe,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Guardar Receta'),
+                    icon: Icon(isEdit ? Icons.save_as : Icons.save),
+                    label: Text(isEdit ? 'Actualizar Receta' : 'Guardar Receta'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,

@@ -3,7 +3,9 @@ import 'package:trabajoexp/screens/dashboard_screen.dart';
 import 'package:trabajoexp/screens/favorite_recipe_screen.dart';
 import 'package:trabajoexp/screens/meal_plan_list_screen.dart';
 import 'package:trabajoexp/screens/recipe_list_screen.dart';
+import 'package:trabajoexp/screens/login_screen.dart';
 import 'package:trabajoexp/services/user_service.dart';
+import 'package:trabajoexp/screens/profile_screen.dart';
 
 class AppSidebar extends StatelessWidget {
   const AppSidebar({super.key});
@@ -13,7 +15,6 @@ class AppSidebar extends StatelessWidget {
     final userId = UserService().getUserId();
 
     if (userId == null) {
-      // Mostrar un placeholder o navegar a login
       return const Drawer(
         child: Center(child: Text("Usuario no autenticado")),
       );
@@ -68,6 +69,32 @@ class AppSidebar extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => FavoriteRecipeScreen(userId: userId),
                 ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Perfil'),
+            onTap: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+            onTap: () async {
+              // ✅ Cerrar sesión
+              await UserService().logout();
+
+              // ✅ Ir al login y eliminar historial de navegación
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
               );
             },
           ),

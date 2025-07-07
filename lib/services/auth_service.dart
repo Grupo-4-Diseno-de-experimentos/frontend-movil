@@ -30,14 +30,18 @@ class AuthService {
     }
   }
 
-  Future<void> register(User user) async {
+  Future<User> register(User user) async {
     final url = Uri.parse(baseUrl);
-    final response = await http.post(url,
+    final response = await http.post(
+      url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );
 
-    if (response.statusCode != 201 && response.statusCode != 200) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return User.fromJson(data);
+    } else {
       throw Exception('Error al registrar usuario');
     }
   }

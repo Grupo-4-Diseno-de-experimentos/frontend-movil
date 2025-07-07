@@ -41,7 +41,18 @@ class RecipeService {
       final favoriteIds = favoritesData.map<int>((f) => f['recipeId']).toList();
 
       final filtered = recipeEntities.where((r) => favoriteIds.contains(r.id)).toList();
-      return filtered;
+
+      // 🔥 Cargar cada receta completa (con ingredientes)
+      List<Recipe> completeRecipes = [];
+      for (var r in filtered) {
+        final fullRecipeResp = await http.get(Uri.parse('$baseUrl/recipe/${r.id}'));
+        if (fullRecipeResp.statusCode == 200) {
+          final fullData = json.decode(fullRecipeResp.body);
+          completeRecipes.add(Recipe.fromJson(fullData));
+        }
+      }
+
+      return completeRecipes;
     } else {
       throw Exception('Error al cargar favoritos');
     }
@@ -99,6 +110,31 @@ class RecipeService {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Error al guardar recipe_ingredients');
+    }
+  }
+
+  Future<void> updateRecipe(Recipe recipe) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/recipe/${recipe.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'title': recipe.title,
+        'description': recipe.description,
+        'instructions': recipe.instructions,
+        'calories': recipe.calories,
+        'nutricionist_id': recipe.nutricionistId,
+        'macros': {
+          'carbs': recipe.macros.carbs,
+          'protein': recipe.macros.protein,
+          'fats': recipe.macros.fats,
+          'recipe_id': recipe.id,
+        },
+        'ingredientIds': recipe.ingredientsIds,
+      }),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Error al actualizar receta');
     }
   }
   Future<List<Ingredient>> getAllIngredients() async {
